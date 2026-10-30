@@ -1,0 +1,61 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local virtual environment and evaluation outputs
+.venv/
+/results/
+/runs/
+
+# Local caches and run artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.uv-cache/
+.ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+/logs/
+/traces/
+
+# Local secrets and authentication
+.env
+.env.*
+.aws/
+.kaggle/
+.ssh/
+credentials
+credentials.*
+secrets/
+secrets.*
+kaggle.json
+.netrc
+_netrc
+.pypirc
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# Competition datasets and archives
+/gemma4-data/
+/data/
+/snapshots/
+/graphs/
+/embeddings/
+*.zip
+*.tgz
+*.tar
+*.tar.gz
