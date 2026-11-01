@@ -62,3 +62,42 @@ Runtime v2, соблюдение checkpoint cadence, уменьшение timeou
 Официальный compiler отсутствует; модель/harness не устанавливались. Kaggle submit не выполнялся.
 Нулевой эффект sample LoRA из ADAPTER_AUDIT.md остаётся без изменений; adapters сохранены по условию.
 Commit этой фазы включает только system prompt, SUBMISSIONS.md и этот отчёт; публикация — отдельной веткой, без изменения main и без force push.
+
+## Уточнение checkpoints — 01.11.2026
+
+Baseline уточнения: `4874c9d0a387755c37079f431e7f30a9143471c8`; ветка прежняя.
+Причина: начальная локализация может занять почти весь бюджет, поэтому первый get_status после неё запаздывает.
+Новая редакция заменяет только одну строку system prompt; прежнее описание первой итерации A4 выше сохранено как история.
+
+Точный diff инструкции:
+
+```diff
+-- Call get_status() immediately after initial localization, then after every 4 working tool calls. Count all other calls, including failed calls and analyzer delegation; exclude get_status and submit_patch. Read time_seconds_remaining and tool_calls_remaining and reserve calls for final verification and submission.
++- Call get_status() before exploring the repository, then after every 4 working tool calls even if localization is still incomplete. Also call it before running tests or delegating, and after a long command returns before continuing work. Count all other calls, including failed calls and analyzer delegation; exclude get_status and submit_patch. Read time_seconds_remaining and tool_calls_remaining and reserve calls for final verification and submission.
+```
+
+Первый status теперь до исследования; cadence из 4 рабочих calls действует и при незавершённой локализации.
+Дополнительные checkpoints — перед tests/delegation и после долгой команды до продолжения.
+Пороги <=60/<=20 s и все остальные инструкции сохранены побайтно; новых timeout-параметров tools нет.
+
+Команда, выполненная неизменённым build script:
+
+```powershell
+python -B -X utf8 scripts/build_submission.py --output dist/v2-checkpoints/submission.zip
+```
+
+- ZIP: `D:\MyProjects\MyOwnProjects\ai_agent_gemma\kaggle\dist\v2-checkpoints\submission.zip`; **443649 bytes**, распаковано **442315 bytes**, 10 entries.
+- SHA-256 обеих сборок и записанного ZIP: `48ab02133476d84f0f89c104a57e7ee3ff7dc0185a10566bd4cf66038f29545a`.
+- Static checks прошли: 4 YAML, 3 references, единственная допустимая модель, tools/adapters/token limits и одинаковый sampling.
+- testzip(), точный список entries и побайтовое сравнение с submission прошли; agent.yaml в корне.
+- Проверено точное равенство prompt исходному с одной заменой строки; остальные 9 файлов submission не изменились.
+- Модель, budgets 120/50/4/80, sampling, analyzer и adapters сохранены.
+- System prompt SHA-256: `a391bff5ecdc94737a00ff93722e371fd2481a852a52b6fca259256ab06057e3`.
+- ZIP v1 сохранил `8c5ba7eb5d09513807ebf8756abedd0f5d66635270bd4c12a0cbdd273e01cfbf`.
+- Предыдущий ZIP v2 сохранил `93a3399f5f72d026d7bda81d068bfb0d60e1a49d0495e9835e37b00ae79841ed`.
+- Новый ZIP ignored через dist/; старые ZIP не перезаписывались.
+- Посторонние B3_REVIEW.txt и B4_DEMO.txt сохранены по SHA-256 и не включаются в commit.
+- В commit уточнения входят только system.md и этот отчёт; main не изменяется.
+
+Runtime не запускался. Уменьшение timeout и фактическое соблюдение checkpoints не доказаны.
+Official compiler не использовался; Kaggle submit не выполнялся.
