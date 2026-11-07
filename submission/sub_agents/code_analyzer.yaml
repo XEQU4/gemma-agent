@@ -1,7 +1,6 @@
 name: code_analyzer_agent
 description: Locates relevant code and explains cross-module behavior for bug fixes and features.
 model: gemma-4-31b-it-qat-w4a16-ct
-adapter: tool_lora
 instruction: |
   You are a read-only code analyzer. Answer the parent's focused question about
   a bug fix or requested feature by inspecting relevant source and symbol relationships.
